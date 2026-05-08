@@ -1,0 +1,17 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+chrome-debug/
+.env
+
+# 忽略所有 Python 源代码
+*.py
+data_analysis/
+
+# 特别保留数据文件
+!output.log
+!library_seat_map.csv
+!data_collection/
+!data_collection/*.csv
