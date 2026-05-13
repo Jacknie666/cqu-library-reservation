@@ -18,10 +18,33 @@ if [[ -n $(git status -s) ]]; then
     # 推送
     if git remote | grep -q 'origin'; then
         git push origin master
-        echo "$(date): Push successful!"
+        if [ $? -eq 0 ]; then
+            echo "$(date): Push successful! Cleaning up local data..."
+            # 1. 删除已同步的数据文件（节省空间）
+            # 注意：Git 会记录这些删除，建议将远程仓库作为历史存档
+            rm -f data_collection/*.csv
+            
+            # 2. 清理临时日志文件
+            if [ -f "output.log" ]; then
+                > output.log
+            fi
+            
+            # 3. 清理 Chrome 调试残留 (如果有)
+            rm -rf chrome-debug/*
+            
+            echo "$(date): Local data cleaned."
+        else
+            echo "$(date): Push failed. Keeping local data for retry."
+        fi
     else
         echo "$(date): Error: No remote 'origin' configured."
     fi
 else
     echo "$(date): No changes detected."
+fi
+
+# 磁盘空间预警 (仅当低于 5G 时输出)
+FREE_G=$(df -BG / | awk 'NR==2 {print $4}' | sed 's/G//')
+if [ "$FREE_G" -lt 6 ]; then
+    echo "$(date): [WARNING] Disk space is low: ${FREE_G}G available."
 fi
